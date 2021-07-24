@@ -1,6 +1,7 @@
 package com.baizhi.springboot_jsp_shiro.config;
 
 import com.baizhi.springboot_jsp_shiro.shiro.realms.CustomerRealm;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
@@ -28,11 +29,13 @@ public class ShiroConfig {
         // 配置系统公共资源
         Map<String, String> map = new HashMap<>();
         map.put("/user/login", "anon");  // anon  设置公共资源
+        map.put("/user/register", "anon");
+        map.put("/register.jsp", "anon");
         map.put("/**", "authc");  // authc  请求这个资源需要认证和授权
 //        map.put("/index.jsp", "authc");  // authc  请求这个资源需要认证和授权
 
         // 默认认证界面路径
-        shiroFilterFactoryBean.setLoginUrl("login.jsp");
+//        shiroFilterFactoryBean.setLoginUrl("login.jsp");      启用会导致多次重定向
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
 
@@ -55,6 +58,13 @@ public class ShiroConfig {
     @Bean
     public Realm getRealm(){
         CustomerRealm customerRealm = new CustomerRealm();
+        // 修改凭证校验匹配器
+        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+        // 设置加密算法为MD5
+        hashedCredentialsMatcher.setHashAlgorithmName("MD5");
+        // 设置散列次数
+        hashedCredentialsMatcher.setHashIterations(1024);
+        customerRealm.setCredentialsMatcher(hashedCredentialsMatcher);
         return customerRealm;
     }
 
